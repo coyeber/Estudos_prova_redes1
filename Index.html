@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redes de Computadores — Prova 1</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --accent3: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --cap1: #00e5ff;
+    --cap2: #a78bfa;
+    --cap3: #34d399;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+  .orb1 { width: 600px; height: 600px; background: var(--accent2); top: -200px; right: -100px; animation-delay: 0s; }
+  .orb2 { width: 400px; height: 400px; background: var(--cap1); bottom: 100px; left: -100px; animation-delay: -7s; }
+  .orb3 { width: 300px; height: 300px; background: var(--cap3); top: 50%; left: 40%; animation-delay: -13s; }
+
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to { transform: translate(30px, 50px) scale(1.1); }
+  }
+
+  /* Header */
+  header {
+    position: relative;
+    z-index: 1;
+    padding: 60px 40px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.2);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 4px;
+    margin-bottom: 24px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  h1 span.hl {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 16px;
+    letter-spacing: 0.05em;
+  }
+
+  .subtitle span { color: var(--accent3); }
+
+  /* Nav tabs */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+  }
+
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav-inner::-webkit-scrollbar { display: none; }
+
+  .nav-tab {
+    padding: 16px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    background: none;
+    border-left: none; border-right: none; border-top: none;
+    outline: none;
+  }
+
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .nav-tab[data-cap="2"].active { color: var(--cap2); border-bottom-color: var(--cap2); }
+  .nav-tab[data-cap="3"].active { color: var(--cap3); border-bottom-color: var(--cap3); }
+
+  /* Main content */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Chapter sections */
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+
+  .chapter-header {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .chapter-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 5rem;
+    font-weight: 800;
+    line-height: 1;
+    opacity: 0.12;
+  }
+
+  .chapter-info h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .chapter-info p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Topic cards */
+  .topics-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .topic-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .topic-card:hover { border-color: rgba(0,229,255,0.3); }
+  .chapter[data-cap="2"] .topic-card:hover { border-color: rgba(167,139,250,0.3); }
+  .chapter[data-cap="3"] .topic-card:hover { border-color: rgba(52,211,153,0.3); }
+
+  .topic-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .topic-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 52px;
+    text-align: center;
+  }
+
+  .cap1 .topic-tag { background: rgba(0,229,255,0.1); color: var(--cap1); }
+  .cap2 .topic-tag { background: rgba(167,139,250,0.1); color: var(--cap2); }
+  .cap3 .topic-tag { background: rgba(52,211,153,0.1); color: var(--cap3); }
+
+  .topic-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    flex: 1;
+    letter-spacing: -0.01em;
+  }
+
+  .topic-arrow {
+    color: var(--muted);
+    font-size: 0.8rem;
+    transition: transform 0.25s;
+  }
+
+  .topic-card.open .topic-arrow { transform: rotate(90deg); }
+
+  .topic-body {
+    display: none;
+    padding: 0 24px 24px 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .topic-card.open .topic-body { display: block; }
+
+  .topic-body h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 20px 0 10px;
+  }
+
+  .topic-body p {
+    font-size: 0.85rem;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin-bottom: 10px;
+  }
+
+  .topic-body ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .topic-body ul li {
+    font-size: 0.83rem;
+    color: #94a3b8;
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.6;
+  }
+
+  .topic-body ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-size: 0.7rem;
+  }
+
+  .topic-body .key-term {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    padding: 3px 9px;
+    border-radius: 3px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text);
+    margin: 3px;
+  }
+
+  .terms-list { margin-top: 10px; }
+
+  .formula-box {
+    background: #0d0d14;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent3);
+    line-height: 1.8;
+  }
+
+  .cap2 .formula-box { border-left-color: var(--cap2); color: var(--cap2); }
+  .cap3 .formula-box { border-left-color: var(--cap3); color: var(--cap3); }
+
+  .note-box {
+    background: rgba(245,158,11,0.06);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-top: 14px;
+    font-size: 0.8rem;
+    color: #d97706;
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 30px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  footer span { color: var(--accent3); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    header, main { padding-left: 20px; padding-right: 20px; }
+    .nav { padding: 0 20px; }
+    h1 { font-size: 2.2rem; }
+    .chapter-num { font-size: 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<header>
+  <div class="badge">Prova 1 — 06/04</div>
+  <h1>Redes de<br><span class="hl">Computadores</span></h1>
+  <p class="subtitle">Kurose & Ross — 6ª ed. &nbsp;|&nbsp; Abordagem <span>top-down</span> &nbsp;|&nbsp; Cap. 1 · 2 · 3</p>
+</header>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-tab active" data-cap="1" onclick="showChap(1)">Cap. 1 — Introdução</button>
+    <button class="nav-tab" data-cap="2" onclick="showChap(2)">Cap. 2 — App Layer</button>
+    <button class="nav-tab" data-cap="3" onclick="showChap(3)">Cap. 3 — Transport</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ═══════════════ CAPÍTULO 1 ═══════════════ -->
+<section class="chapter active cap1" id="cap1" data-cap="1">
+  <div class="chapter-header">
+    <div class="chapter-num">01</div>
+    <div class="chapter-info">
+      <h2>Introdução às Redes</h2>
+      <p>Seções 1.1 · 1.2 · 1.3 · 1.5</p>
+    </div>
+  </div>
+  <div class="topics-grid">
+
+    <!-- 1.1 -->
+    <div class="topic-card" onclick="toggle(this)">
+      <div class="topic-header">
+        <span class="topic-tag cap1">1.1</span>
+        <span class="topic-title">O que é a Internet?</span>
+        <span class="topic-arrow">▶</span>
+      </div>
+      <div class="topic-body">
+        <h4>Visão de componentes</h4>
+        <ul>
+          <li><strong>Hosts (sistemas finais)</strong>: dispositivos conectados à internet (PCs, smartphones, TVs, sensores…). Executam aplicações.</li>
+          <li><strong>Enlace de comunicação</strong>: fibra óptica, par trançado, rádio, satélite. Cada tipo tem sua <em>taxa de transmissão</em> (largura de banda) em bps.</li>
+          <li><strong>Roteadores e comutadores de enlace</strong>: encaminham pacotes ao destino. Roteadores na rede núcleo; switches na borda.</li>
+          <li><strong>ISPs</strong> (Provedores de Serviço de Internet): hierarquia — ISP de acesso → ISP regional → ISP Tier-1 (backbone). Interconectam-se via <em>pontos de presença (PoPs)</em>, <em>peering</em> e <em>IXPs</em>.</li>
+        </ul>
+        <h4>Visão de serviços</h4>
+        <ul>
+          <li>A Internet como <em>infraestrutura</em> que provê serviços às aplicações distribuídas.</li>
+          <li>Oferece dois tipos de serviço via <strong>socket API</strong>: entrega confiável (TCP) e melhor esforço (UDP).</li>
+        </ul>
+        <h4>O que é um protocolo?</h4>
+        <p>Define o <strong>formato</strong> e a <strong>ordem das mensagens</strong> enviadas/recebidas entre entidades e as <strong>ações</strong> tomadas em cada evento. Analogia: humanos combinam "Oi → Oi! → você tem hora?" antes de trocar informação.</p>
+      </div>
+    </div>
+
+    <!-- 1.2 -->
+    <div class="topic-card" onclick="toggle(this)">
+      <div class="topic-header">
+        <span class="topic-tag cap1">1.2</span>
+        <span class="topic-title">A borda da rede</span>
+        <span class="topic-arrow">▶</span>
+      </div>
+      <div class="topic-body">
+        <h4>Sistemas finais e redes de acesso</h4>
+        <ul>
+          <li><strong>DSL</strong>: usa linha telefônica existente. Modem DSL → DSLAM na central → Internet. Assimétrico (download &gt; upload).</li>
+          <li><strong>Cabo coaxial (HFC)</strong>: compartilhado entre vizinhos. Usa CMTS no headend. Também assimétrico.</li>
+          <li><strong>FTTH</strong>: fibra direto ao domicílio. AON (ponto-a-ponto) ou PON (compartilhada).</li>
+          <li><strong>Ethernet</strong>: acesso corporativo/universitário via par trançado a switches Ethernet.</li>
+          <li><strong>Wi-Fi (802.11)</strong>: ponto de acesso (AP) conectado a roteador doméstico, que conecta ao ISP de acesso.</li>
+          <li><strong>Redes celulares</strong> (3G/4G/LTE): estações base → rede celular → Internet.</li>
+        </ul>
+        <h4>Meios físicos</h4>
+        <ul>
+          <li><strong>Par trançado (UTP/STP)</strong>: Cat 5/6, até ~10 Gbps em curtas distâncias.</li>
+          <li><strong>Cabo coaxial</strong>: condutor central + blindagem. Alta largura de banda, compartilhado.</li>
+          <li><strong>Fibra óptica</strong>: imune a EMI, baixíssima atenuação, até centenas de Gbps.</li>
+          <li><strong>Rádio terrestre</strong>: Wi-Fi, 4G. Sofre com interferência e multicaminho.</li>
+          <li><strong>Rádio via satélite</strong>: GEO (35.000 km, ~280 ms latência) vs LEO (Starlink).</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 1.3 -->
+    <div class="topic-card" onclick="toggle(this)">
+      <div class="topic-header">
+        <span class="topic-tag cap1">1.3</span>
+        <span class="topic-title">O núcleo da rede — comutação</span>
+        <span class="topic-arrow">▶</span>
+      </div>
+      <div class="topic-body">
+        <h4>Comutação de pacotes</h4>
+        <p>Mensagem dividida em <strong>pacotes</strong>. Cada pacote usa a capacidade total do enlace e percorre roteadores com política <em>store-and-forward</em>.</p>
+        <div class="formula-box">
+          Atraso store-and-forward (N enlaces, L bits, R bps):<br>
+          d = N × (L / R)
+        </div>
+        <ul>
+          <li><strong>Enfileiramento (queueing)</strong>: pacotes aguardam no buffer se a taxa de chegada &gt; taxa de saída. Pode causar <em>perda</em> se buffer cheio.</li>
+          <li><strong>Tabela de encaminhamento</strong>: roteador consulta endereço destino → escolhe enlace de saída.</li>
+        </ul>
+        <h4>Comutação de circuitos</h4>
+        <p>Recursos reservados fim-a-fim para toda a duração da chamada. Exemplos: rede telefônica tradicional.</p>
+        <ul>
+          <li><strong>FDM</strong> (Freq. Division Multiplexing): cada chamada ocupa uma faixa de frequência.</li>
+          <li><strong>TDM</strong> (Time Division Multiplexing): cada chamada ocupa slots de tempo fixos.</li>
+          <li>Desvantagem: circuito fica ocioso quando não há dados sendo transmitidos.</li>
+        </ul>
+        <h4>Comutação de pacotes vs circuitos</h4>
+        <ul>
+          <li>Pacotes: melhor aproveitamento do enlace, mais simples, mas com variação de atraso (jitter).</li>
+          <li>Circuitos: garantia de recursos, previsível. Usado em telefonia tradicional.</li>
+          <li>A Internet usa <em>comutação de pacotes</em> — adequado para dados em rajada.</li>
+        </ul>
+        <h4>Estrutura da Internet (ISPs)</h4>
+        <ul>
+          <li>ISP de acesso → ISP regional → ISP Tier-1 (backbone global, ex: AT&T, NTT).</li>
+          <li><strong>IXP</strong> (Internet Exchange Point): ponto neutro onde ISPs fazem peering sem pagar trânsito.</li>
+          <li><strong>CDNs</strong> (ex: Google, Akamai): redes privadas próprias para levar conteúdo próximo ao usuário.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 1.5 -->
+    <div class="topic-card" onclick="toggle(this)">
+      <div class="topic-header">
+        <span class="topic-tag cap1">1.5</span>
+        <span class="topic-title">Atraso, perda, vazão e camadas de protocolo</span>
+        <span class="topic-arrow">▶</span>
+      </div>
+      <div class="topic-body">
+        <h4>Tipos de atraso nodal</h4>
+        <div class="formula-box">
+          d_nodal = d_proc + d_fila + d_trans + d_prop
+        </div>
+        <ul>
+          <li><strong>d_proc</strong> (processamento): verificar erros de bit, determinar enlace de saída. Tipicamente &lt; µs.</li>
+          <li><strong>d_fila</strong> (enfileiramento): espera para transmitir. Depende do tráfego. Mais variável.</li>
+          <li><strong>d_trans</strong> (transmissão): L/R. Tempo para colocar todos os bits no enlace.</li>
+          <li><strong>d_prop</strong> (propagação): d/s, onde d = distância, s ≈ 2×10⁸ m/s. Independe de L.</li>
+        </ul>
+        <h4>Intensidade de tráfego e perda</h4>
+        <div class="formula-box">
+          I = La/R &nbsp;&nbsp; (a = taxa média de chegada de pacotes)
+          <br><br>
+          I → 0 : atraso pequeno
+          I → 1 : atraso → ∞
+          I > 1 : perda de pacotes
+        </div>
+        <h4>Traceroute</h4>
+        <p>Ferramenta de diagnóstico que envia pacotes com TTL crescente (1, 2, 3…) para descobrir os roteadores no caminho e medir RTTs.</p>
+        <h4>Vazão (Throughput)</h4>
+        <ul>
+          <li><strong>Instântanea</strong>: taxa em um instante.</li>
+          <li><strong>Média</strong>: F bits / T segundos.</li>
+          <li>Limitada pelo <strong>gargalo</strong> (enlace de menor capacidade no caminho).</li>
+        </ul>
+        <h4>Camadas de protocolo</h4>
+        <ul>
+          <li><strong>Aplicação</strong>: HTTP, FTP, SMTP, DNS. Mensagens.</li>
+          <li><strong>Transporte</strong>: TCP, UDP. Segmentos.</li>
+          <li><strong>Rede</strong>: IP, roteamento. Datagramas.</li>
+          <li><strong>Enlace</strong>: Ethernet, Wi-Fi. Quadros.</li>
+          <li><strong>Física</strong>: bits no meio físico.</li>
+        </ul>
+        <p>Cada camada encapsula a PDU da camada superior adicionando seu cabeçalho (<strong>encapsulamento</strong>).</p>
+        <div class="note-box">⚠ Conceito importante: camadas fornecem serviços à camada superior e usam serviços da camada inferior. Esse isolamento permite evolução independente de cada camada.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════ CAPÍTULO 2 ═══════════════ -->
+<section class="chapter cap2" id="cap2" data-cap="2">
+  <div class="chapter-header">
+    <div class="chapter-num">02</div>
+    <div class="chapter-info">
+      <h2>Camada de Aplicação</h2>
+      <p>Seções 2.1 · 2.2 · 2.5 · 2.7</p>
+    </div>
+  </div>
+  <div class="topics-grid">
+
+    <!-- 2.1 -->
+    <div class="topic-card" onclick="toggle(this)">
+      <div class="topic-header">
+        <span class="topic-tag cap2">2.1</span>
+        <span class="topic-title">Princípios das aplicações de rede</span>
+        <span class="topic-arrow">▶</span>
+      </div>
+      <div class="topic-body">
+        <h4>Arquiteturas de aplicação</h4>
+        <ul>
+          <li><strong>Cliente-servidor</strong>: servidor sempre ativo, IP fixo/estático, muitos clientes se comunicam com ele. Ex: HTTP, FTP, SMTP.</li>
+          <li><strong>P2P pura</strong>: sem servidor sempre ativo. Pares se comunicam diretamente. Auto-escalável. Difícil de gerenciar. Ex: BitTorrent.</li>
+          <li><strong>Híbrida</strong>: combina C/S e P2P. Ex: Skype (servidor para localização, P2P para voz).</li>
+        </ul>
+        <h4>Comunicação entre processos</h4>
+        <ul>
+          <li>Processo = programa em execução. Processos em hosts diferentes se comunicam por <strong>sockets</strong>.</li>
+          <li>Socket = interface entre camada de aplicação e de transporte (API).</li>
+          <li>Endereçamento: <strong>endereço IP</strong> (host) + <strong>número de porta</strong> (processo). Ex: 80 (HTTP), 443 (HTTPS), 25 (SMTP).</li>
+        </ul>
+        <h4>Serviços que uma aplicação pode exigir</h4>
+        <ul>
+          <li><strong>Transferência confiável de dados</strong>: garantia de entrega (TCP) vs melhor esforço (UDP).</li>
+          <li><strong>Vazão</strong>: apps sensíveis à largura de banda (streaming) vs elásticas (e-mail).</li>
+          <li><strong>Temporização</strong>: requisitos de atraso máximo (jogos, VoIP).</li>
+          <li><strong>Segurança</strong>: criptografia, autenticação (TLS sobre TCP).</li>
+        </ul>
+        <h4>TCP vs UDP — visão da aplicação</h4>
+        <ul>
+          <li><strong>TCP</strong>: orientado a conexão (handshake), confiável, controle de fluxo e congestionamento. Sem garantia de temporização/vazão.</li>
+          <li><strong>UDP</strong>: sem conexão, sem confiabilidade, sem controle de congestionamento. Simples e rápido. Usado em streaming e DNS.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 2.2 -->
+    <div class="topic-card" onclick="toggle(this)">
+      <div class="topic-header">
+        <span class="topic-tag cap2">2.2</span>
+        <span class="topic-title">A Web e o HTTP</span>
+        <span class="topic-arrow">▶</span>
+      </div>
+      <div class="topic-body">
+        <h4>Visão geral do HTTP</h4>
+        <ul>
+          <li>Protocolo da camada de aplicação da Web. Usa TCP (porta 80 / 443 com TLS).</li>
+          <li><strong>Stateless</strong>: servidor não mantém estado sobre os clientes.</li>
+          <li>Objetos endereçados por <strong>URL</strong>: protocolo + hostname + caminho.</li>
+        </ul>
+        <h4>Conexões HTTP</h4>
+        <ul>
+          <li><strong>Não-persistente</strong>: nova conexão TCP para cada objeto. RTT extra para cada objeto. d = 2RTT + tempo_transmissão por objeto.</li>
+          <li><strong>Persistente</strong> (padrão HTTP/1.1): múltiplos objetos na mesma conexão. Sem pipeline ou com pipeline (envia sem esperar resposta).</li>
+        </ul>
+        <div class="formula-box">
+          RTT = tempo para pacote ir do cliente ao servidor e retornar
+          <br>
+          d_resposta (não-persistente) = 2 RTT + T_trans(objeto HTML)
+        </div>
+        <h4>Mensagens HTTP</h4>
+        <ul>
+          <li><strong>Request</strong>: linha de requisição (método URL versão) + cabeçalhos + corpo.
+            <br>Métodos: GET, POST, HEAD, PUT, DELETE.</li>
+          <li><strong>Response</strong>: linha de status (versão código frase) + cabeçalhos + corpo.
+            <br>Códigos: 200 OK, 301 Moved Permanently, 304 Not Modified, 400 Bad Request, 404 Not Found, 505 Version Not Supported.</li>
+        </ul>
+        <h4>Cookies</h4>
+        <ul>
+          <li>Mecanismo para adicionar estado ao HTTP stateless.</li>
+          <li>4 componentes: cabeçalho Set-Cookie na resposta, cabeçalho Cookie na requisição, arquivo no navegador, base de dados no servidor.</li>
+          <li>Usos: autenticação, carrinhos de compra, rastreamento de usuário.</li>
+        </ul>
+        <h4>Web caches (proxies)</h4>
+        <ul>
+          <li>Armazena cópias de objetos recentemente requisitados. Atua como servidor para clientes e como cliente para o servidor original.</li>
+          <li>Reduz tempo de resposta e tráfego no enlace de acesso.</li>
+          <li><strong>GET condicional</strong>: proxy usa <code>If-Modified-Since</code>; servidor responde 304 se não houve modificação, economizando transmissão do objeto.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 2.5 -->
+    <div class="topic-card" onclick="toggle(this)">
+      <div class="topic-header">
+        <span class="topic-tag cap2">2.5</span>
+        <span class="topic-title">DNS — Domain Name System</span>
+        <span class="topic-arrow">▶</span>
+      </div>
+      <div class="topic-body">
+        <h4>O que o DNS faz</h4>
+        <ul>
+          <li>Traduz nomes de domínio legíveis (www.google.com) em endereços IP (142.250.x.x).</li>
+          <li>Outros serviços: apelidos de host (alias), apelidos de servidor de e-mail, distribuição de carga (múltiplos IPs para um nome).</li>
+          <li>Base de dados <strong>distribuída e hierárquica</strong>, implementada em servidores de nome ao redor do mundo.</li>
+        </ul>
+        <h4>Hierarquia de servidores DNS</h4>
+        <ul>
+          <li><strong>Root DNS</strong>: 13 clusters lógicos (a–m.root-servers.net). Conhecem os servidores TLD.</li>
+          <li><strong>TLD</strong> (Top-Level Domain): .com, .org, .net, .edu, .br… Mantidos por organizações (Verisign, NIC.br).</li>
+          <li><strong>Autoritativo</strong>: mantido pela própria organização ou ISP. Tem os registros oficiais do domínio.</li>
+          <li><strong>DNS local</strong> (resolver): no ISP ou organização. Recebe consultas dos hosts; faz as perguntas em nome do cliente.</li>
+        </ul>
+        <h4>Resolução de nomes</h4>
+        <ul>
+          <li><strong>Iterativa</strong>: servidor local pergunta a cada servidor, recebe referência ao próximo. Faz o trabalho o servidor local.</li>
+          <li><strong>Recursiva</strong>: cada servidor pergunta ao próximo e retorna a resposta ao solicitante anterior. Mais carga nos servidores superiores.</li>
+        </ul>
+        <h4>Cache DNS</h4>
+        <p>Respostas são armazenadas em cache com TTL. Servidores TLD frequentemente ficam em cache no servidor local, evitando consultas à raiz.</p>
+        <h4>Registros DNS (RRs)</h4>
+        <div class="formula-box">
+          Formato: (Name, Value, Type, TTL)
+          <br><br>
+          Type A    : Name = hostname, Value = IP
+          Type NS   : Name = domínio, Value = servidor DNS autoritativo
+          Type CNAME: Name = alias, Value = nome canônico
+          Type MX   : Name = domínio, Value = servidor de e-mail
+        </div>
+        <h4>Protocolo DNS</h4>
+        <ul>
+          <li>Usa <strong>UDP, porta 53</strong> (TCP para respostas &gt; 512 bytes ou transferência de zona).</li>
+          <li>Mensagem de consulta e resposta têm o mesmo formato (flag QR distingue).</li>
+          <li>Campos: identificação, flags, perguntas, respostas, autoridade, informações adicionais.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 2.7 -->
+    <div class="topic-card" onclick="toggle(this)">
+      <div class="topic-header">
+        <span class="topic-tag cap2">2.7</span>
+        <span class="topic-title">Programação de sockets (conceitos)</span>
+        <span class="topic-arrow">▶</span>
+      </div>
+      <div class="topic-body">
+        <div class="note-box">⚠ A programação em si (código) não é cobrada. Foco nos conceitos de socket e no modelo de comunicação.</div>
+        <h4>O que é um socket</h4>
+        <p>Interface (porta) entre o processo da aplicação e o protocolo de transporte. É a API de rede. O desenvolvedor tem controle de tudo na aplicação e do lado do transporte; o restante é gerenciado pelo SO.</p>
+        <h4>Sockets UDP</h4>
+        <ul>
+          <li>Sem conexão prévia. Cada pacote carrega endereço IP destino e porta.</li>
+          <li>Não confiável, pode chegar fora de ordem ou ser perdido.</li>
+          <li>Fluxo: cria socket → sendto (endereço destino + dados) → recvfrom (recebe + endereço origem).</li>
+        </ul>
+        <h4>Sockets TCP</h4>
+        <ul>
+          <li>Orientado a conexão: 3-way handshake antes de trocar dados.</li>
+          <li>Servidor: cria socket de escuta (welcomeSocket) → accept() → cria novo socket de conexão para aquele cliente.</li>
+          <li>Cliente: cria socket → connect() (dispara handshake) → send/recv.</li>
+          <li>Cada par (cliente ↔ servidor) tem seu próprio socket dedicado.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════ CAPÍTULO 3 ═══════════════ -->
+<section class="chapter cap3" id="cap3" data-cap="3">
+  <div class="chapter-header">
+    <div class="chapter-num">03</div>
+    <div class="chapter-info">
+      <h2>Camada de Transporte</h2>
+      <p>Seções 3.1 · 3.2 · 3.3 · 3.5 (exceto 3.5.3 e 3.5.5)</p>
+    </div>
+  </div>
+  <div class="topics-grid">
+
+    <!-- 3.1 -->
+    <div class="topic-card" onclick="toggle(this)">
+      <div class="topic-header">
+        <span class="topic-tag cap3">3.1</span>
+        <span class="topic-title">Serviços da camada de transporte</span>
+        <span class="topic-arrow">▶</span>
+      </div>
+      <div class="topic-body">
+        <h4>Função principal</h4>
+        <p>Provê comunicação lógica entre <strong>processos</strong> em hosts diferentes. A camada de rede provê comunicação entre <strong>hosts</strong>; a de transporte estende isso até os processos.</p>
+        <h4>Relação com a camada de rede</h4>
+        <ul>
+          <li>Camada de rede (IP): serviço de melhor esforço, sem garantias. Pode perder, duplicar, reordenar datagramas.</li>
+          <li>Camada de transporte pode: adicionar confiabilidade (TCP), prover multiplexação, controle de congestionamento.</li>
+          <li>O que a camada de transporte <em>não pode</em> melhorar: largura de banda, atraso de propagação — esses dependem da rede.</li>
+        </ul>
+        <h4>TCP vs UDP — resumo</h4>
+        <ul>
+          <li><strong>TCP</strong>: confiável, ordenado, controle de fluxo, controle de congestionamento, orientado a conexão. Segmentos.</li>
+          <li><strong>UDP</strong>: não confiável, sem ordem, sem controle. Datagramas. Menor sobrecarga.</li>
+        </ul>
+        <div class="terms-list">
+          <span class="key-term">segmento</span>
+          <span class="key-term">datagrama UDP</span>
+          <span class="key-term">PDU</span>
+          <span class="key-term">encapsulamento</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3.2 -->
+    <div class="topic-card" onclick="toggle(this)">
+      <div class="topic-header">
+        <span class="topic-tag cap3">3.2</span>
+        <span class="topic-title">Multiplexação e demultiplexação</span>
+        <span class="topic-arrow">▶</span>
+      </div>
+      <div class="topic-body">
+        <h4>Definições</h4>
+        <ul>
+          <li><strong>Multiplexação (no emissor)</strong>: coletar dados de vários sockets, encapsular com cabeçalho de transporte e passar à camada de rede.</li>
+          <li><strong>Demultiplexação (no receptor)</strong>: examinar campos do segmento para identificar o socket correto e entregar os dados.</li>
+        </ul>
+        <h4>Como funciona a demultiplexação</h4>
+        <p>Segmento tem campos: <strong>IP fonte, IP destino, porta fonte, porta destino</strong>. O receptor usa esses campos para direcionar ao socket certo.</p>
+        <h4>Sem conexão (UDP)</h4>
+        <ul>
+          <li>Socket UDP identificado por: (IP destino, porta destino).</li>
+          <li>Dois segmentos com IPs de origem diferentes, mas mesmo IP/porta destino → vão para o <em>mesmo</em> socket.</li>
+        </ul>
+        <h4>Orientado a conexão (TCP)</h4>
+        <ul>
+          <li>Socket TCP identificado por: (IP fonte, porta fonte, IP destino, porta destino) — 4-tupla.</li>
+          <li>Dois segmentos com IP de origem diferente, mas mesma porta destino → sockets <em>diferentes</em>.</li>
+          <li>Servidor com múltiplos clientes: um socket por conexão ativa.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 3.3 -->
+    <div class="topic-card" onclick="toggle(this)">
+      <div class="topic-header">
+        <span class="topic-tag cap3">3.3</span>
+        <span class="topic-title">UDP — Transporte sem conexão</span>
+        <span class="topic-arrow">▶</span>
+      </div>
+      <div class="topic-body">
+        <h4>Por que usar UDP?</h4>
+        <ul>
+          <li>Sem handshake → menor atraso de estabelecimento.</li>
+          <li>Sem estado de conexão no sender/receiver → servidor suporta mais clientes.</li>
+          <li>Menor cabeçalho (8 bytes vs ≥ 20 bytes TCP).</li>
+          <li>Sem controle de congestionamento → pode enviar na máxima taxa suportada.</li>
+          <li>Aplicações: DNS, SNMP, streaming multimídia, jogos online, QUIC.</li>
+        </ul>
+        <h4>Estrutura do segmento UDP</h4>
+        <div class="formula-box">
+          | Porta fonte (16 bits) | Porta destino (16 bits) |
+          | Comprimento (16 bits) | Checksum (16 bits)      |
+          | Dados (payload)                                   |
+        </div>
+        <ul>
+          <li><strong>Comprimento</strong>: tamanho total em bytes (cabeçalho + dados). Mínimo = 8.</li>
+          <li><strong>Checksum</strong>: detecta (não corrige) erros de bit. Calculado sobre pseudo-cabeçalho + cabeçalho + dados.</li>
+        </ul>
+        <h4>Checksum UDP</h4>
+        <ul>
+          <li>Soma em complemento de 1 das palavras de 16 bits.</li>
+          <li>Emissor: calcula, coloca no campo checksum (complemento do resultado).</li>
+          <li>Receptor: soma tudo incluindo checksum → deve ser 1111...1 (todos 1s) se sem erro.</li>
+          <li>Se checksum = 0 (não habilitado em IPv4, opcional): campo zerado.</li>
+        </ul>
+        <div class="note-box">⚠ UDP oferece apenas detecção de erro (checksum), não correção nem retransmissão. A aplicação é responsável por qualquer confiabilidade adicional.</div>
+      </div>
+    </div>
+
+    <!-- 3.5 -->
+    <div class="topic-card" onclick="toggle(this)">
+      <div class="topic-header">
+        <span class="topic-tag cap3">3.5</span>
+        <span class="topic-title">TCP — Transporte orientado a conexão</span>
+        <span class="topic-arrow">▶</span>
+      </div>
+      <div class="topic-body">
+        <div class="note-box">📌 Subtópicos 3.5.3 (estimativa de RTT e timeout) e 3.5.5 (controle de fluxo) não são cobrados.</div>
+
+        <h4>Características do TCP (3.5.1)</h4>
+        <ul>
+          <li><strong>Ponto-a-ponto</strong>: um emissor, um receptor.</li>
+          <li><strong>Fluxo de bytes confiável e ordenado</strong>: sem fronteiras de mensagem ("byte stream").</li>
+          <li><strong>Full-duplex</strong>: dados fluem nos dois sentidos na mesma conexão. MSS = Maximum Segment Size.</li>
+          <li><strong>Handshake</strong>: troca de variáveis de controle antes de transmitir dados.</li>
+          <li><strong>Buffers de envio e recepção</strong>: TCP faz o melhor para entregar os dados, sujeto ao controle de fluxo e congestionamento.</li>
+        </ul>
+
+        <h4>Estrutura do segmento TCP (3.5.2)</h4>
+        <div class="formula-box">
+          | Porta fonte (16) | Porta destino (16) |
+          | Número de sequência (32 bits)           |
+          | Número de ACK (32 bits)                 |
+          | Len(4)|Reserv.|Flags(6)| Janela (16)   |
+          | Checksum (16) | Urgente (16)            |
+          | Opções (variável)                       |
+          | Dados                                   |
+        </div>
+        <ul>
+          <li><strong>Número de sequência</strong>: byte offset do primeiro byte de dados do segmento no fluxo.</li>
+          <li><strong>Número de ACK</strong>: próximo byte esperado do outro lado. ACK cumulativo.</li>
+          <li><strong>Flags</strong>: SYN, ACK, FIN, RST, PSH, URG.</li>
+          <li><strong>Janela de recepção (rwnd)</strong>: usada para controle de fluxo.</li>
+        </ul>
+
+        <h4>Transferência confiável de dados (3.5.4)</h4>
+        <ul>
+          <li>TCP cria serviço confiável sobre o IP (não confiável).</li>
+          <li><strong>Temporizador de retransmissão</strong>: disparado ao enviar segmento. Se ACK não chega antes do timeout → retransmite.</li>
+          <li><strong>ACK cumulativo</strong>: confirma todos os bytes até o número de ACK.</li>
+          <li><strong>Retransmissão rápida</strong>: ao receber 3 ACKs duplicados → retransmite segmento perdido sem esperar timeout. (Indica perda, não congestionamento severo.)</li>
+          <li>Cenários de retransmissão: segmento perdido, ACK perdido, ACK prematuro.</li>
+        </ul>
+        <div class="formula-box">
+          ACK duplicado: receptor recebeu segmento fora de ordem →
+          reenvia ACK do último byte em ordem recebido.
+          <br><br>
+          3 ACKs dup → retransmissão rápida (fast retransmit)
+        </div>
+
+        <h4>Gerenciamento de conexão TCP (3.5.6)</h4>
+        <ul>
+          <li><strong>Estabelecimento — 3-way handshake</strong>:
+            <ol style="margin-top:6px;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:0.83rem;color:#94a3b8;">
+              <li>Cliente → SYN (seq=x)</li>
+              <li>Servidor → SYN+ACK (seq=y, ack=x+1)</li>
+              <li>Cliente → ACK (seq=x+1, ack=y+1) + pode conter dados</li>
+            </ol>
+          </li>
+          <li><strong>Encerramento — 4 segmentos (FIN/ACK)</strong>:
+            <ol style="margin-top:6px;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:0.83rem;color:#94a3b8;">
+              <li>Cliente → FIN</li>
+              <li>Servidor → ACK</li>
+              <li>Servidor → FIN</li>
+              <li>Cliente → ACK (aguarda 2×MSL antes de fechar — TIME_WAIT)</li>
+            </ol>
+          </li>
+          <li>Half-close: um lado pode fechar seu sentido enquanto ainda recebe dados do outro.</li>
+          <li><strong>RST</strong>: abortar conexão imediatamente (sem FIN).</li>
+        </ul>
+        <div class="note-box">⚠ O estado TIME_WAIT garante que o ACK final chegue ao servidor e que segmentos "zumbis" da conexão expirem antes de uma nova conexão reutilizar os mesmos endereços e portas.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Kurose & Ross — Redes de Computadores, 6ª ed. &nbsp;·&nbsp; Prova 1: <span>06/04</span>
+</footer>
+
+<script>
+  function showChap(n) {
+    document.querySelectorAll('.chapter').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('cap' + n).classList.add('active');
+    document.querySelector('.nav-tab[data-cap="' + n + '"]').classList.add('active');
+    // Close all open cards when switching chapter
+    document.querySelectorAll('.topic-card.open').forEach(c => c.classList.remove('open'));
+  }
+
+  function toggle(card) {
+    card.classList.toggle('open');
+  }
+</script>
+</body>
+</html>
